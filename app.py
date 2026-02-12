@@ -293,7 +293,7 @@ html = f"""
 
 <script>
   // --- Slideshow ---
-  const photos = ["/static/photos/01.JPG", "/static/photos/02.JPG", "/static/photos/03.JPG"];
+  const photos = ["/static/photos/01.jpg", "/static/photos/02.jpg", "/static/photos/03.jpg"];
   const frame = document.getElementById("photoFrame");
   let i = 0;
 
