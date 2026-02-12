@@ -346,7 +346,7 @@ html = f"""
 """
 
 
-st.components.v1.html(html, height=2200, scrolling=True)
+st.components.v1.html(html, height=1200, scrolling=True)
 
 
 # Small note if no music file
