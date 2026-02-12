@@ -12,22 +12,22 @@ HIS_NAME = "Darling~"
 YOUR_NAME = "Vivienne"
 BIRTHDAY = date(2026, 2, 9)
 
-TITLE = f"Happy Birthday, {HIS_NAME} 🎂"
+TITLE = f"🎂Happy Birthday🎂 {HIS_NAME} 🎉"
 
 MESSAGE_TOP = "A quiet birthday note for you."
 MESSAGE_BODY = (
-    "Happy Birthday.\n"
-    "Happy Birthday.\n\n"
-    "Happy Birthday.\n"
-    "Happy Birthday.\n\n"
-    "Happy Birthday.\n"
-    "And Happy Birthday."
+    "🍰 Happy Birthday.\n"
+    "🎂 Happy Birthday.\n\n"
+    "🎉 Happy Birthday.\n"
+    "💐 Happy Birthday.\n\n"
+    "🎁 Happy Birthday.\n"
+    "🥰 Happy Birthday."
 )
 MESSAGE_BOTTOM = (
-    "May this year be gentle with you.\n"
-    "May you feel loved in ways that are simple, real, and lasting."
+    "💗 May this year be gentle with you.\n"
+    "🧩 May you feel loved in ways that are simple, real, and lasting."
 )
-SIGNATURE = f"— {YOUR_NAME}"
+SIGNATURE = f"Yours \n {YOUR_NAME}"
 
 PHOTO_DIR = "photos"
 BGM_PATH = "assets/bgm.mp3"
