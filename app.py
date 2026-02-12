@@ -5,9 +5,9 @@ from pathlib import Path
 import streamlit as st
 
 # ------------------ Customize ------------------
-HIS_NAME = "Darling~"        # 改成你先生的英文名/昵称
-YOUR_NAME = "Vivienne"      # 你的名字
-BIRTHDAY = date(2026, 2, 9) # 改生日 (YYYY, M, D)
+HIS_NAME = "Darling~"        # 改英文名/昵称
+YOUR_NAME = "Vivienne"      # 名字
+BIRTHDAY = date(2026, 2, 9) # 生日 (YYYY, M, D)
 
 TITLE = f"Happy Birthday, {HIS_NAME} 🎂"
 
@@ -28,13 +28,12 @@ SIGNATURE = f"— {YOUR_NAME}"
 
 PHOTO_DIR = "photos"
 BGM_PATH = "assets/bgm.mp3"   # 把音乐放这里
+
 # ------------------------------------------------
-
-
 #def file_to_data_uri(filepath: str, mime: str) -> str:
 #    p = Path(filepath)
- #   if not p.exists():
- #       return ""
+#    if not p.exists():
+#        return ""
 #    data = p.read_bytes()
 #    b64 = base64.b64encode(data).decode("utf-8")
 #    return f"data:{mime};base64,{b64}"
@@ -98,13 +97,16 @@ st.markdown("### ")
 music_on = True     
 sparkle_on = True
 
+SLIDE_MS = 1600  # 轮播间隔（毫秒）: 1200更快，2500更慢
+
 html = f"""
 <div class="stage">
-  <div class="paper">
+  <div class="paper" id="paper">
     <div class="countdown">{countdown}</div>
 
     <div class="photo-frame" id="photoFrame">
       <div class="photo-overlay"></div>
+      <div class="tap-hint" id="tapHint">Tap the card to play music</div>
     </div>
 
     <div class="content">
@@ -120,8 +122,8 @@ html = f"""
 
   <div class="sparkles" id="sparkles"></div>
 
-  <audio id="bgm" loop>
-    {"<source src='" + bgm_uri + "' type='audio/mpeg' />" if bgm_uri else ""}
+  <audio id="bgm" loop playsinline preload="auto">
+    <source src="/static/assets/bgm.mp3" type="audio/mpeg" />
   </audio>
 </div>
 
@@ -143,6 +145,7 @@ html = f"""
     display: flex;
     justify-content: center;
     padding: 18px 0 40px 0;
+    min-height: 1800px;
   }}
 
   .paper {{
@@ -152,13 +155,12 @@ html = f"""
     padding: 18px 18px 26px 18px;
     box-shadow: 0 18px 55px var(--shadow);
     border: 1px solid rgba(0,0,0,0.06);
-
-    /* paper texture */
     background:
       radial-gradient(1000px 600px at 20% 10%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.0) 55%),
       radial-gradient(900px 540px at 80% 30%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.0) 60%),
       linear-gradient(180deg, #fff7ef 0%, var(--paper) 35%, #f7eddc 100%);
     overflow: hidden;
+    display: block;
   }}
 
   .countdown {{
@@ -181,13 +183,30 @@ html = f"""
     box-shadow: 0 12px 32px rgba(0,0,0,0.10);
   }}
 
-  /* soft vignette + warm tint */
   .photo-overlay {{
     position: absolute;
     inset: 0;
     background:
       radial-gradient(900px 500px at 50% 20%, rgba(255,245,230,0.25) 0%, rgba(0,0,0,0.18) 80%),
       linear-gradient(180deg, rgba(255,235,210,0.10) 0%, rgba(0,0,0,0.12) 100%);
+    pointer-events: none;
+  }}
+
+  .tap-hint {{
+    position: absolute;
+    left: 50%;
+    top: 14px;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: rgba(25,20,16,0.75);
+    font-size: 12px;
+    backdrop-filter: blur(6px);
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.35s ease;
     pointer-events: none;
   }}
 
@@ -227,7 +246,6 @@ html = f"""
     color: rgba(25, 20, 16, 0.75);
   }}
 
-  /* Sparkles layer */
   .sparkles {{
     position: absolute;
     inset: 0;
@@ -259,35 +277,27 @@ html = f"""
       padding: 14px 12px 18px 12px !important;
       border-radius: 18px !important;
     }}
-
     .photo-frame {{
       height: 240px !important;
       border-radius: 14px !important;
     }}
-
     .title {{
       font-size: 24px !important;
     }}
-
     .text {{
       font-size: 14px !important;
       line-height: 1.75 !important;
     }}
   }}
-  
-  .stage {{ min-height: 1800px; }}
-  .paper {{ display: block; }}
-
 </style>
 
 <script>
-  #const photos = ["{img1}", "{img2}", "{img3}"].filter(Boolean);
+  // --- Slideshow ---
   const photos = ["/static/photos/01.JPG", "/static/photos/02.JPG", "/static/photos/03.JPG"];
   const frame = document.getElementById("photoFrame");
   let i = 0;
 
   function setPhoto(idx) {{
-    if (!photos.length) return;
     frame.style.backgroundImage = `url('${{photos[idx]}}')`;
   }}
 
@@ -295,39 +305,50 @@ html = f"""
   setInterval(() => {{
     i = (i + 1) % photos.length;
     setPhoto(i);
-  }}, 2000);
+  }}, {SLIDE_MS});
 
-  // Sparkles: generate stars
+  // --- Sparkles ---
   const sparkleLayer = document.getElementById("sparkles");
   sparkleLayer.innerHTML = "";
   const N = 70;
   for (let k = 0; k < N; k++) {{
     const s = document.createElement("div");
     s.className = "sparkle";
-    const x = Math.random() * 100;
-    const y = Math.random() * 100;
-    const dur = (2.2 + Math.random() * 3.2).toFixed(2) + "s";
-    const delay = (Math.random() * 3.0).toFixed(2) + "s";
-    s.style.left = x + "%";
-    s.style.top = y + "%";
-    s.style.setProperty("--dur", dur);
-    s.style.animationDelay = delay;
+    s.style.left = (Math.random() * 100) + "%";
+    s.style.top  = (Math.random() * 100) + "%";
+    s.style.setProperty("--dur", (2.2 + Math.random() * 3.2).toFixed(2) + "s");
+    s.style.animationDelay = (Math.random() * 3.0).toFixed(2) + "s";
     sparkleLayer.appendChild(s);
   }}
 
-  // Music control
+  // --- Music (mobile-friendly) ---
   const audio = document.getElementById("bgm");
+  const paper = document.getElementById("paper");
+  const hint  = document.getElementById("tapHint");
   const shouldPlay = {str(music_on).lower()};
-  if (audio && shouldPlay) {{
-    // Many browsers block autoplay without a user gesture.
-    // Streamlit toggle counts as user interaction; try play and ignore errors.
+
+  function tryPlay() {{
+    if (!audio) return;
     audio.volume = 0.6;
-    audio.play().catch(() => {{}});
-  }} else if (audio) {{
-    audio.pause();
+    audio.play().then(() => {{
+      if (hint) hint.style.opacity = 0;
+    }}).catch(() => {{
+      // Autoplay blocked: show hint
+      if (hint) hint.style.opacity = 1;
+    }});
+  }}
+
+  if (shouldPlay) {{
+    tryPlay();
+    paper.addEventListener("click", () => {{
+      tryPlay();
+    }});
+  }} else {{
+    if (hint) hint.style.opacity = 0;
   }}
 </script>
 """
+
 
 st.components.v1.html(html, height=2200, scrolling=True)
 
