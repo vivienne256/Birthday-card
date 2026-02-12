@@ -388,7 +388,7 @@ html = f"""
 </script>
 """
 
-st.components.v1.html(html, height=2200, scrolling=True)
+st.components.v1.html(html, height=1200, scrolling=True)
 
 if not Path(BGM_PATH).exists():
     st.caption("Tip: Put your background music at assets/bgm.mp3 (optional).")
