@@ -1,13 +1,16 @@
 import os
 import base64
+import io
 from datetime import date
 from pathlib import Path
+
 import streamlit as st
+from PIL import Image
 
 # ------------------ Customize ------------------
-HIS_NAME = "Darling~"        # 改英文名/昵称
-YOUR_NAME = "Vivienne"      # 名字
-BIRTHDAY = date(2026, 2, 9) # 生日 (YYYY, M, D)
+HIS_NAME = "Darling~"
+YOUR_NAME = "Vivienne"
+BIRTHDAY = date(2026, 2, 9)
 
 TITLE = f"Happy Birthday, {HIS_NAME} 🎂"
 
@@ -15,7 +18,7 @@ MESSAGE_TOP = "A quiet birthday note for you."
 MESSAGE_BODY = (
     "Happy Birthday.\n"
     "Happy Birthday.\n\n"
-    "THappy Birthday.\n"
+    "Happy Birthday.\n"
     "Happy Birthday.\n\n"
     "Happy Birthday.\n"
     "And Happy Birthday."
@@ -27,16 +30,8 @@ MESSAGE_BOTTOM = (
 SIGNATURE = f"— {YOUR_NAME}"
 
 PHOTO_DIR = "photos"
-BGM_PATH = "assets/bgm.mp3"   # 把音乐放这里
-
+BGM_PATH = "assets/bgm.mp3"
 # ------------------------------------------------
-#def file_to_data_uri(filepath: str, mime: str) -> str:
-#    p = Path(filepath)
-#    if not p.exists():
-#        return ""
-#    data = p.read_bytes()
-#    b64 = base64.b64encode(data).decode("utf-8")
-#    return f"data:{mime};base64,{b64}"
 
 
 def list_photos(folder: str):
@@ -48,6 +43,34 @@ def list_photos(folder: str):
     return sorted(paths)
 
 
+def image_to_data_uri(filepath: str, max_side: int = 1200, quality: int = 82) -> str:
+    """
+    Compress image for mobile stability, then convert to data URI.
+    """
+    p = Path(filepath)
+    if not p.exists():
+        return ""
+    im = Image.open(p).convert("RGB")
+    w, h = im.size
+    scale = min(max_side / max(w, h), 1.0)
+    if scale < 1.0:
+        im = im.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+
+    buf = io.BytesIO()
+    im.save(buf, format="JPEG", quality=quality, optimize=True)
+    b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+    return f"data:image/jpeg;base64,{b64}"
+
+
+def file_to_data_uri(filepath: str, mime: str) -> str:
+    p = Path(filepath)
+    if not p.exists():
+        return ""
+    data = p.read_bytes()
+    b64 = base64.b64encode(data).decode("utf-8")
+    return f"data:{mime};base64,{b64}"
+
+
 st.set_page_config(page_title=TITLE, page_icon="🎂", layout="centered")
 
 photos = list_photos(PHOTO_DIR)
@@ -55,17 +78,18 @@ if len(photos) < 1:
     st.error("No photos found. Put at least 1 image into the 'photos/' folder.")
     st.stop()
 
-# 取前三张做轮播（不足三张就循环使用）
-p1 = photos[0] if len(photos) >= 1 else photos[0]
+# Take first 3 (repeat if fewer)
+p1 = photos[0]
 p2 = photos[1] if len(photos) >= 2 else photos[0]
 p3 = photos[2] if len(photos) >= 3 else photos[0]
 
+# Mobile-safe compressed image URIs
+img1 = image_to_data_uri(p1)
+img2 = image_to_data_uri(p2)
+img3 = image_to_data_uri(p3)
 
-
-#img1 = file_to_data_uri(p1, "image/jpeg")
-#img2 = file_to_data_uri(p2, "image/jpeg")
-#img3 = file_to_data_uri(p3, "image/jpeg")
-#bgm_uri = file_to_data_uri(BGM_PATH, "audio/mpeg")
+# Base64 music (4MB is fine)
+bgm_uri = file_to_data_uri(BGM_PATH, "audio/mpeg")
 
 today = date.today()
 days = (BIRTHDAY - today).days
@@ -76,24 +100,11 @@ elif days == 0:
 else:
     countdown = f"{-days} days since"
 
-# ---- UI Controls (minimal & not “flashy”) ----
-st.markdown("### ")
-# colA, colB = st.columns([1, 1])
-# with colA:
-#    music_on = st.toggle("Play music", value=False)
-# with colB:
-#     sparkle_on = st.toggle("Sparkles", value=True)
-
-# ---- Paper-card + Sparkles + Slideshow + Audio (HTML/CSS/JS) ----
-# 暖色纸质背景 + 轻微纹理（用 CSS 渐变模拟）
-# 星光：纯 CSS 小点 + 闪烁动画
-# 轮播：JS 每 3.5 秒切换背景图
-# 音乐：audio 标签，toggle 控制播放
-
-music_on = True     
+# Controls: no UI toggles
+music_on = True
 sparkle_on = True
 
-SLIDE_MS = 1600  # 轮播间隔（毫秒）: 1200更快，2500更慢
+SLIDE_MS = 1600  # slideshow interval (ms). smaller = faster
 
 html = f"""
 <div class="stage">
@@ -119,7 +130,7 @@ html = f"""
   <div class="sparkles" id="sparkles"></div>
 
   <audio id="bgm" loop playsinline preload="auto">
-    <source src="/static/assets/bgm.mp3" type="audio/mpeg" />
+    {"<source src='" + bgm_uri + "' type='audio/mpeg' />" if bgm_uri else ""}
   </audio>
 </div>
 
@@ -156,7 +167,6 @@ html = f"""
       radial-gradient(900px 540px at 80% 30%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.0) 60%),
       linear-gradient(180deg, #fff7ef 0%, var(--paper) 35%, #f7eddc 100%);
     overflow: hidden;
-    display: block;
   }}
 
   .countdown {{
@@ -229,7 +239,6 @@ html = f"""
     font-size: 16px;
     line-height: 1.85;
     color: var(--ink);
-    white-space: normal;
   }}
 
   .text.bottom {{
@@ -288,12 +297,13 @@ html = f"""
 </style>
 
 <script>
-  // --- Slideshow ---
-  const photos = ["/static/photos/01.JPG", "/static/photos/02.JPG", "/static/photos/03.JPG"];
+  // --- Slideshow (compressed data URIs) ---
+  const photos = ["{img1}", "{img2}", "{img3}"].filter(Boolean);
   const frame = document.getElementById("photoFrame");
   let i = 0;
 
   function setPhoto(idx) {{
+    if (!photos.length) return;
     frame.style.backgroundImage = `url('${{photos[idx]}}')`;
   }}
 
@@ -345,10 +355,7 @@ html = f"""
 </script>
 """
 
+st.components.v1.html(html, height=2200, scrolling=True)
 
-st.components.v1.html(html, height=1200, scrolling=True)
-
-
-# Small note if no music file
 if not Path(BGM_PATH).exists():
     st.caption("Tip: Put your background music at assets/bgm.mp3 (optional).")
