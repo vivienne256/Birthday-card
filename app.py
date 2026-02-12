@@ -31,13 +31,13 @@ BGM_PATH = "assets/bgm.mp3"   # 把音乐放这里
 # ------------------------------------------------
 
 
-def file_to_data_uri(filepath: str, mime: str) -> str:
-    p = Path(filepath)
-    if not p.exists():
-        return ""
-    data = p.read_bytes()
-    b64 = base64.b64encode(data).decode("utf-8")
-    return f"data:{mime};base64,{b64}"
+#def file_to_data_uri(filepath: str, mime: str) -> str:
+#    p = Path(filepath)
+ #   if not p.exists():
+ #       return ""
+#    data = p.read_bytes()
+#    b64 = base64.b64encode(data).decode("utf-8")
+#    return f"data:{mime};base64,{b64}"
 
 
 def list_photos(folder: str):
@@ -61,11 +61,16 @@ p1 = photos[0] if len(photos) >= 1 else photos[0]
 p2 = photos[1] if len(photos) >= 2 else photos[0]
 p3 = photos[2] if len(photos) >= 3 else photos[0]
 
-img1 = file_to_data_uri(p1, "image/jpeg")
-img2 = file_to_data_uri(p2, "image/jpeg")
-img3 = file_to_data_uri(p3, "image/jpeg")
+# Make paths web-friendly
+p1_web = f"/app/static/{p1}"  # 我们下面会创建静态路由
+p2_web = f"/app/static/{p2}"
+p3_web = f"/app/static/{p3}"
+bgm_web = f"/app/static/{BGM_PATH}"
 
-bgm_uri = file_to_data_uri(BGM_PATH, "audio/mpeg")
+#img1 = file_to_data_uri(p1, "image/jpeg")
+#img2 = file_to_data_uri(p2, "image/jpeg")
+#img3 = file_to_data_uri(p3, "image/jpeg")
+#bgm_uri = file_to_data_uri(BGM_PATH, "audio/mpeg")
 
 today = date.today()
 days = (BIRTHDAY - today).days
@@ -276,7 +281,8 @@ html = f"""
 </style>
 
 <script>
-  const photos = ["{img1}", "{img2}", "{img3}"].filter(Boolean);
+  #const photos = ["{img1}", "{img2}", "{img3}"].filter(Boolean);
+  const photos = ["/static/photos/01.JPG", "/static/photos/02.JPG", "/static/photos/03.JPG"];
   const frame = document.getElementById("photoFrame");
   let i = 0;
 
