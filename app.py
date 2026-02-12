@@ -90,7 +90,7 @@ st.markdown("### ")
 # 轮播：JS 每 3.5 秒切换背景图
 # 音乐：audio 标签，toggle 控制播放
 
-music_on = True     # 手机端更稳，不自动播
+music_on = True     
 sparkle_on = True
 
 html = f"""
@@ -289,7 +289,7 @@ html = f"""
   setInterval(() => {{
     i = (i + 1) % photos.length;
     setPhoto(i);
-  }}, 3500);
+  }}, 2000);
 
   // Sparkles: generate stars
   const sparkleLayer = document.getElementById("sparkles");
