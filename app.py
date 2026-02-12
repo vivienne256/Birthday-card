@@ -5,20 +5,20 @@ from pathlib import Path
 import streamlit as st
 
 # ------------------ Customize ------------------
-HIS_NAME = "My Love"        # 改成你先生的英文名/昵称
-YOUR_NAME = "Yuanyuan"      # 你的名字
-BIRTHDAY = date(2026, 3, 5) # 改生日 (YYYY, M, D)
+HIS_NAME = "Darling~"        # 改成你先生的英文名/昵称
+YOUR_NAME = "Vivienne"      # 你的名字
+BIRTHDAY = date(2026, 2, 9) # 改生日 (YYYY, M, D)
 
 TITLE = f"Happy Birthday, {HIS_NAME} 🎂"
 
 MESSAGE_TOP = "A quiet birthday note for you."
 MESSAGE_BODY = (
-    "I know you don’t care for fuss or grand gestures.\n"
-    "So this is simply something warm — made for you.\n\n"
-    "Thank you for the calm strength you bring into our life,\n"
-    "for the way you take care of things (and of us), quietly and consistently.\n\n"
-    "I admire you more than I say.\n"
-    "And I’m grateful I get to love you in the everyday moments that matter most."
+    "Happy Birthday.\n"
+    "Happy Birthday.\n\n"
+    "THappy Birthday.\n"
+    "Happy Birthday.\n\n"
+    "Happy Birthday.\n"
+    "And Happy Birthday."
 )
 MESSAGE_BOTTOM = (
     "May this year be gentle with you.\n"
