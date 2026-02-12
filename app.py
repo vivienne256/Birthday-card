@@ -43,9 +43,10 @@ def list_photos(folder: str):
     return sorted(paths)
 
 
-def image_to_data_uri(filepath: str, max_side: int = 1200, quality: int = 82) -> str:
+def image_to_data_uri(filepath: str, max_side: int = 1400, quality: int = 82) -> str:
     """
     Compress image for mobile stability, then convert to data URI.
+    Increase max_side a bit since you want larger hero images.
     """
     p = Path(filepath)
     if not p.exists():
@@ -104,7 +105,7 @@ else:
 music_on = True
 sparkle_on = True
 
-SLIDE_MS = 1600  # slideshow interval (ms). smaller = faster
+SLIDE_MS = 1800  # slightly slower looks better with "bookish" feel
 
 html = f"""
 <div class="stage">
@@ -123,7 +124,7 @@ html = f"""
       <div class="text">{MESSAGE_BODY.replace("\n", "<br>")}</div>
       <div class="text bottom">{MESSAGE_BOTTOM.replace("\n", "<br>")}</div>
 
-      <div class="sig">{SIGNATURE}</div>
+      <div class="sig">{SIGNATURE.replace("\n", "<br>")}</div>
     </div>
   </div>
 
@@ -146,13 +147,25 @@ html = f"""
     background: radial-gradient(1200px 600px at 50% 10%, #fff7ee 0%, #f6efe6 40%, #efe6da 100%) !important;
   }}
 
+  /* ===== Remove Streamlit top gap / make it feel "pinned to top" ===== */
+  header {{
+    visibility: hidden;
+    height: 0px;
+  }}
+  section.main > div {{
+    padding-top: 0rem !important;
+  }}
+  .block-container {{
+    padding-top: 0rem !important;
+  }}
+
   .stage {{
     position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 18px 0 40px 0;
-    min-height: 1800px;
+    padding: 6px 0 28px 0;   /* was 18px top; smaller = more "top-pinned" */
+    min-height: 1200px;
   }}
 
   .paper {{
@@ -177,10 +190,12 @@ html = f"""
     margin: 2px 4px 10px 6px;
   }}
 
+  /* ===== Hero photo bigger + slight "cover" feel ===== */
   .photo-frame {{
     position: relative;
     width: 100%;
-    height: 360px;
+    height: 560px;          /* bigger cover */
+    margin-top: -8px;       /* nudge upward a bit */
     border-radius: 18px;
     overflow: hidden;
     background-size: cover;
@@ -189,9 +204,11 @@ html = f"""
     box-shadow: 0 12px 32px rgba(0,0,0,0.10);
   }}
 
+  /* soft vignette + warm tint */
   .photo-overlay {{
     position: absolute;
     inset: 0;
+    border-radius: 18px; /* keep overlay aligned with rounded corners */
     background:
       radial-gradient(900px 500px at 50% 20%, rgba(255,245,230,0.25) 0%, rgba(0,0,0,0.18) 80%),
       linear-gradient(180deg, rgba(255,235,210,0.10) 0%, rgba(0,0,0,0.12) 100%);
@@ -249,8 +266,10 @@ html = f"""
     margin-top: 14px;
     font-size: 16px;
     color: rgba(25, 20, 16, 0.75);
+    white-space: normal;
   }}
 
+  /* ===== Sparkles layer (richer twinkle) ===== */
   .sparkles {{
     position: absolute;
     inset: 0;
@@ -261,19 +280,28 @@ html = f"""
 
   .sparkle {{
     position: absolute;
-    width: 2px;
-    height: 2px;
+    width: var(--size);
+    height: var(--size);
     border-radius: 999px;
     background: rgba(255,255,255,0.9);
-    box-shadow: 0 0 10px rgba(255,255,255,0.9);
-    animation: twinkle var(--dur) ease-in-out infinite;
-    opacity: 0.0;
+    box-shadow:
+      0 0 12px rgba(255,255,255,0.9),
+      0 0 24px rgba(255,245,220,0.35);
+    animation:
+      twinkle var(--dur) ease-in-out infinite,
+      drift 8s ease-in-out infinite;
+    opacity: 0;
   }}
 
   @keyframes twinkle {{
     0%   {{ opacity: 0.0; transform: scale(0.8); }}
-    45%  {{ opacity: 0.9; transform: scale(1.4); }}
-    100% {{ opacity: 0.0; transform: scale(0.8); }}
+    40%  {{ opacity: 0.95; transform: scale(1.6); }}
+    100% {{ opacity: 0.0; transform: scale(0.85); }}
+  }}
+
+  @keyframes drift {{
+    0%,100% {{ filter: blur(0px); }}
+    50%     {{ filter: blur(0.6px); }}
   }}
 
   @media (max-width: 520px) {{
@@ -283,7 +311,11 @@ html = f"""
       border-radius: 18px !important;
     }}
     .photo-frame {{
-      height: 240px !important;
+      height: 380px !important;  /* larger hero on mobile */
+      margin-top: -6px !important;
+      border-radius: 14px !important;
+    }}
+    .photo-overlay {{
       border-radius: 14px !important;
     }}
     .title {{
@@ -313,17 +345,18 @@ html = f"""
     setPhoto(i);
   }}, {SLIDE_MS});
 
-  // --- Sparkles ---
+  // --- Sparkles (richer sizes + rhythms) ---
   const sparkleLayer = document.getElementById("sparkles");
   sparkleLayer.innerHTML = "";
-  const N = 70;
+  const N = 85; // slightly more looks nicer with bigger hero
   for (let k = 0; k < N; k++) {{
     const s = document.createElement("div");
     s.className = "sparkle";
     s.style.left = (Math.random() * 100) + "%";
     s.style.top  = (Math.random() * 100) + "%";
-    s.style.setProperty("--dur", (2.2 + Math.random() * 3.2).toFixed(2) + "s");
+    s.style.setProperty("--dur", (1.8 + Math.random() * 3.6).toFixed(2) + "s");
     s.style.animationDelay = (Math.random() * 3.0).toFixed(2) + "s";
+    s.style.setProperty("--size", (1 + Math.random() * 2.2).toFixed(2) + "px");
     sparkleLayer.appendChild(s);
   }}
 
