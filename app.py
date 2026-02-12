@@ -244,6 +244,29 @@ html = f"""
     45%  {{ opacity: 0.9; transform: scale(1.4); }}
     100% {{ opacity: 0.0; transform: scale(0.8); }}
   }}
+
+  @media (max-width: 520px) {
+  .paper {
+    width: 94vw !important;
+    padding: 14px 12px 18px 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .photo-frame {
+    height: 240px !important;
+    border-radius: 14px !important;
+  }
+
+  .title {
+    font-size: 24px !important;
+  }
+
+  .text {
+    font-size: 14px !important;
+    line-height: 1.75 !important;
+  }
+}
+
 </style>
 
 <script>
@@ -294,7 +317,9 @@ html = f"""
 </script>
 """
 
-st.components.v1.html(html, height=860, scrolling=False)
+#st.components.v1.html(html, height=860, scrolling=False)
+st.components.v1.html(html, height=1200, scrolling=True)
+
 
 # Small note if no music file
 if not Path(BGM_PATH).exists():
