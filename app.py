@@ -245,27 +245,27 @@ html = f"""
     100% {{ opacity: 0.0; transform: scale(0.8); }}
   }}
 
-  @media (max-width: 520px) {
-  .paper {
-    width: 94vw !important;
-    padding: 14px 12px 18px 12px !important;
-    border-radius: 18px !important;
-  }
+  @media (max-width: 520px) {{
+    .paper {{
+      width: 94vw !important;
+      padding: 14px 12px 18px 12px !important;
+      border-radius: 18px !important;
+    }}
 
-  .photo-frame {
-    height: 240px !important;
-    border-radius: 14px !important;
-  }
+    .photo-frame {{
+      height: 240px !important;
+      border-radius: 14px !important;
+    }}
 
-  .title {
-    font-size: 24px !important;
-  }
+    .title {{
+      font-size: 24px !important;
+    }}
 
-  .text {
-    font-size: 14px !important;
-    line-height: 1.75 !important;
-  }
-}
+    .text {{
+      font-size: 14px !important;
+      line-height: 1.75 !important;
+    }}
+  }}
 
 </style>
 
