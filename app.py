@@ -78,17 +78,20 @@ else:
 
 # ---- UI Controls (minimal & not “flashy”) ----
 st.markdown("### ")
-colA, colB = st.columns([1, 1])
-with colA:
-    music_on = st.toggle("Play music", value=False)
-with colB:
-    sparkle_on = st.toggle("Sparkles", value=True)
+# colA, colB = st.columns([1, 1])
+# with colA:
+#    music_on = st.toggle("Play music", value=False)
+# with colB:
+#     sparkle_on = st.toggle("Sparkles", value=True)
 
 # ---- Paper-card + Sparkles + Slideshow + Audio (HTML/CSS/JS) ----
 # 暖色纸质背景 + 轻微纹理（用 CSS 渐变模拟）
 # 星光：纯 CSS 小点 + 闪烁动画
 # 轮播：JS 每 3.5 秒切换背景图
 # 音乐：audio 标签，toggle 控制播放
+
+music_on = True     # 手机端更稳，不自动播
+sparkle_on = True
 
 html = f"""
 <div class="stage">
@@ -266,6 +269,9 @@ html = f"""
       line-height: 1.75 !important;
     }}
   }}
+  
+  .stage {{ min-height: 1800px; }}
+  .paper {{ display: block; }}
 
 </style>
 
@@ -317,8 +323,7 @@ html = f"""
 </script>
 """
 
-#st.components.v1.html(html, height=860, scrolling=False)
-st.components.v1.html(html, height=1200, scrolling=True)
+st.components.v1.html(html, height=2200, scrolling=True)
 
 
 # Small note if no music file
