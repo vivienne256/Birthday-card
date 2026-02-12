@@ -60,11 +60,7 @@ p1 = photos[0] if len(photos) >= 1 else photos[0]
 p2 = photos[1] if len(photos) >= 2 else photos[0]
 p3 = photos[2] if len(photos) >= 3 else photos[0]
 
-# Make paths web-friendly
-p1_web = f"/app/static/{p1}"  # 我们下面会创建静态路由
-p2_web = f"/app/static/{p2}"
-p3_web = f"/app/static/{p3}"
-bgm_web = f"/app/static/{BGM_PATH}"
+
 
 #img1 = file_to_data_uri(p1, "image/jpeg")
 #img2 = file_to_data_uri(p2, "image/jpeg")
